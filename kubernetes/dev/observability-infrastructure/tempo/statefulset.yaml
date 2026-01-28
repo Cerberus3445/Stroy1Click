@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tempo
+  labels:
+    app: tempo
+spec:
+  replicas: 1
+  serviceName: tempo
+  selector:
+    matchLabels:
+      app: tempo
+  template:
+    metadata:
+      labels:
+        app: tempo
+    spec:
+      containers:
+        - name: tempo
+          image: grafana/tempo:2.8.2
+          args:
+            - "-config.file=/etc/tempo/tempo.yaml"
+          ports:
+            - name: http
+              containerPort: 3200
+            - name: grpc
+              containerPort: 4317
+            - name: otlp-http
+              containerPort: 4318
+
+          volumeMounts:
+            - mountPath: /etc/tempo
+              name: tempo-config
+              readOnly: true
+            - mountPath: /tmp/tempo/wal
+              name: tempo-wal
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: tempo-wal
+          persistentVolumeClaim:
+            claimName: tempo-pv-claim

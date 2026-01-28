@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+  labels:
+    app: auth-service
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      name: auth-service
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: stroy1click/auth:0.0.1-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9070
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: auth-service-config
+          livenessProbe:
+            httpGet:
+              port: 4040
+              path: /actuator/health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 3
+
+      restartPolicy: Always
+      

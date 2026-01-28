@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  serviceName: prometheus
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image:  prom/prometheus:v3.5.0
+          ports:
+            - containerPort: 9090
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+          volumeMounts:
+            - mountPath: /prometheus
+              name: prometheus-wal
+            - mountPath: /etc/prometheus/prometheus.yml # Куда кладем файл
+              name: config-volume
+              subPath: prometheus.yml
+      volumes:
+        - name: prometheus-wal
+          persistentVolumeClaim:
+            claimName: prometheus-pv-claim
+        - name: config-volume
+          configMap:
+            name: prometheus-config

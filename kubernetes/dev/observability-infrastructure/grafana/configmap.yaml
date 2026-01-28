@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources-config
+data:
+  datasources.yaml: |
+    apiVersion: 1
+
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus:9090
+        isDefault: false
+
+      - name: Elasticsearch
+        type: elasticsearch
+        url: http://elasticsearch:9200
+        jsonData:
+          index: "logs-*"
+          timeField: "@timestamp"
+          esVersion: "8.0.0"
+          logMessageField: "body"
+          logLevelField: "severity_text"
+        isDefault: false
+
+      - name: Tempo
+        type: tempo
+        url: http://tempo:3200
+        jsonData:
+          httpMethod: POST
+        isDefault: false

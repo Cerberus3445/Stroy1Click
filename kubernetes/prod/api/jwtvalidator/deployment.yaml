@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jwt-validator-deployment
+  labels:
+    app: jwt-validator-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jwt-validator-service
+  template:
+    metadata:
+      name: jwt-validator-service
+      labels:
+        app: jwt-validator-service
+    spec:
+      containers:
+        - name: jwt-validator-service
+          image: stroy1click/jwt:0.0.1-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9050
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: jwt-validator-service-config
+          livenessProbe:
+            httpGet:
+              port: 9050
+              path: /actuator/health
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              port: 9050
+              path: /actuator/health
+            initialDelaySeconds: 240
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      restartPolicy: Always
+      nodeSelector:
+        size: large

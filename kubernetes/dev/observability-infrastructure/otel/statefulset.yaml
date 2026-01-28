@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: otel-collector
+  namespace: dev
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  serviceName: otel-collector
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.133.0
+          args: ["--config=/etc/otelcol/config.yaml"]
+          ports:
+            - name: http
+              containerPort: 4317
+            - name: grpc
+              containerPort: 4318
+            - name: prom-exp
+              containerPort: 9464
+          envFrom:
+            - configMapRef:
+                name: otel-collector-config
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/otelcol/config.yaml # Путь до ФАЙЛА
+              subPath: config.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: otel-collector-config

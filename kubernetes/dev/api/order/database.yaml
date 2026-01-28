@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-db
+  namespace: dev
+spec:
+  externalName: host.docker.internal
+  type: ExternalName
+  ports:
+    - protocol: TCP
+      port: 5434

@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: confirmation-code-deployment
+  labels:
+    app: confirmation-code-service
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: confirmation-code-service
+  template:
+    metadata:
+      name: confirmation-code-service
+      labels:
+        app: confirmation-code-service
+    spec:
+      containers:
+        - name: confirmation-code-service
+          image: stroy1click/confirmation:0.0.1-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6060
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: confirmation-code-service-config
+          livenessProbe:
+            httpGet:
+              port: 4040
+              path: /actuator/health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 3
+
+      restartPolicy: Always
+      

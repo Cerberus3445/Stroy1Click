@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-proxy-headers
+  namespace: prod
+data:
+  X-Original-URL: "$request_uri"
+  X-Original-Method: "$request_method"

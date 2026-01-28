@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: dev
+spec:
+  selector:
+    app: product-service
+  ports:
+    - protocol: TCP
+      port: 7070
+      targetPort: 7070
+      nodePort: 30070
+  type: NodePort
+  

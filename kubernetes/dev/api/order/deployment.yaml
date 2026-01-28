@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-deployment
+  labels:
+    app: order-service
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      name: order-service
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: stroy1click/order:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 1010
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: order-service-config
+          livenessProbe:
+            httpGet:
+              port: 4040
+              path: /actuator/health
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            failureThreshold: 3
+
+      restartPolicy: Always
+      

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  serviceName: prometheus
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      securityContext:
+        fsGroup: 65534
+        runAsUser: 65534
+      containers:
+        - name: prometheus
+          image:  prom/prometheus:v3.5.0
+          ports:
+            - containerPort: 9090
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.retention.time=30d"
+            - "--storage.tsdb.retention.size=8GB"
+          volumeMounts:
+            - mountPath: /prometheus
+              name: prometheus-wal
+            - mountPath: /etc/prometheus/prometheus.yml
+              name: config-volume
+              subPath: prometheus.yml
+          resources:
+            limits:
+              memory: 2Gi
+              cpu: "1"
+            requests:
+              memory: 1Gi
+              cpu: "500m"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: prometheus-config
+      nodeSelector:
+        size: medium
+  volumeClaimTemplates:
+    - metadata:
+        name: prometheus-wal
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "nvme.network-drives.csi.timeweb.cloud"
+        resources:
+          requests:
+            storage: 10Gi

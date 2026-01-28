@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: attribute-deployment
+  labels:
+    app: attribute-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: attribute-service
+  template:
+    metadata:
+      name: attribute-service
+      labels:
+        app: attribute-service
+    spec:
+      containers:
+        - name: attribute-service
+          image: stroy1click/attribute:0.0.1-SNAPSHOT
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4040
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: attribute-service-config
+            - secretRef:
+                name: attribute-secret
+          livenessProbe:
+            httpGet:
+              port: 4040
+              path: /actuator/health
+            initialDelaySeconds: 60
+            periodSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              port: 4040
+              path: /actuator/health
+            initialDelaySeconds: 240
+            periodSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      restartPolicy: Always
+      nodeSelector:
+        size: large

@@ -8,13 +8,17 @@ datasources:
     url: http://prometheus:9095
     isDefault: false
 
-  - name: Loki
-    uid: loki_ds
-    type: loki
+  - name: Elasticsearch
+    uid: elasticsearch_ds
+    type: elasticsearch
     access: proxy
-    url: http://loki:3100
+    url: http://elasticsearch:9200
     jsonData:
-      authEnabled: false
+      index: "logs-*"
+      timeField: "@timestamp"
+      esVersion: "8.0.0"
+      logMessageField: "body"
+      logLevelField: "severity_text"
     isDefault: false
 
   - name: Tempo
