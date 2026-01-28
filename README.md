@@ -20,7 +20,7 @@
 ## 🧩 Архитектура
 
 <p align="center">
-  <img src="images/Stroy1Click.drawio-3.svg" alt="Stroy1Click Architecture" width="900"/>
+  <img src="images/Stroy1Click.drawio-3.drawio-4.svg" alt="Stroy1Click Architecture" width="900"/>
 </p>
 
 **Основные принципы архитектуры:**
